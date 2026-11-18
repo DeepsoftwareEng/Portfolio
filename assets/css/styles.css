@@ -1534,6 +1534,20 @@ main:focus {
   bottom: 24px;
 }
 
+/* ---------- Checkered flag transition (vào chặng, vẽ bằng canvas trong flag.js) ---------- */
+.xflag-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-intro);
+  pointer-events: none;
+}
+
+.xflag-overlay canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
 /* ---------- Responsive ---------- */
 @media (min-width: 768px) {
   .container {

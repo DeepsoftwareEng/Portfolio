@@ -132,11 +132,17 @@
     if (sameRace) {
       message = state.ctrl.update(turnIndex);
     } else {
-      teardown();
-      state.ctrl = PW.race.mount(mainEl, i18n.lang, raceIndex, turnIndex);
-      state.raceId = def.id;
-      state.view = 'race';
-      focusTitle();
+      const mount = () => {
+        teardown();
+        state.ctrl = PW.race.mount(mainEl, i18n.lang, raceIndex, turnIndex);
+        state.raceId = def.id;
+        state.view = 'race';
+        focusTitle();
+      };
+      // Vào chặng mới từ trong trang (không phải mở thẳng link / đổi ngôn ngữ) → chuyển cảnh cờ caro.
+      const entering = state.view !== null && !(state.view === 'race' && state.raceId === def.id);
+      if (entering) PW.flag.cover(mount);
+      else mount();
       message = '';
     }
     const turn = race.turns[turnIndex] || {};
@@ -146,6 +152,7 @@
 
   function route() {
     const r = parse(window.location.hash);
+    PW.flag.cancel();
 
     if (!i18n.isLang(r.lang)) {
       // Thiếu hoặc sai ngôn ngữ → thêm ngôn ngữ mặc định, giữ phần còn lại nếu có.
