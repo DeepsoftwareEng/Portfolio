@@ -146,7 +146,8 @@
       message = '';
     }
     const turn = race.turns[turnIndex] || {};
-    setMeta(race.name + ' · ' + i18n.t('lap') + ' ' + (turnIndex + 1) + (turn.title ? ': ' + turn.title : ''));
+    const unit = i18n.t(def.kind === 'garage' ? 'part' : 'lap');
+    setMeta(race.name + ' · ' + unit + ' ' + (turnIndex + 1) + (turn.title ? ': ' + turn.title : ''));
     if (message) announce(message);
   }
 

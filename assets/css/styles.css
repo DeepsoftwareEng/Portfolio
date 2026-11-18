@@ -1548,6 +1548,205 @@ main:focus {
   height: 100%;
 }
 
+/* ---------- Pit Garage (garage.js) ---------- */
+.car {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.car .z > * {
+  fill: var(--surface-2);
+  stroke: var(--line-strong);
+  stroke-width: 3;
+  stroke-linejoin: round;
+  transition:
+    fill 0.25s var(--ease),
+    stroke 0.25s var(--ease);
+}
+
+.car .z-durability > * {
+  fill: #0e1014;
+}
+
+.car a.z {
+  cursor: pointer;
+}
+
+.car a.z:hover > * {
+  stroke: var(--text);
+}
+
+.car[data-active='aero'] .z-aero > *,
+.car[data-active='chassis'] .z-chassis > *,
+.car[data-active='power'] .z-power > *,
+.car[data-active='durability'] .z-durability > * {
+  fill: rgba(181, 123, 255, 0.28);
+  stroke: var(--purple);
+}
+
+.car[data-active='aero'] .z-aero,
+.car[data-active='chassis'] .z-chassis,
+.car[data-active='power'] .z-power,
+.car[data-active='durability'] .z-durability {
+  filter: drop-shadow(0 0 10px rgba(181, 123, 255, 0.5));
+}
+
+.car .z > [fill='none'],
+.car[data-active='durability'] .z-durability > [fill='none'] {
+  fill: none;
+}
+
+.z-label {
+  font-family: var(--font-mono);
+  font-size: 15px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  fill: var(--muted);
+  pointer-events: none;
+}
+
+.car[data-active='aero'] .z-label-aero,
+.car[data-active='chassis'] .z-label-chassis,
+.car[data-active='power'] .z-label-power,
+.car[data-active='durability'] .z-label-durability {
+  fill: var(--purple);
+}
+
+.car-thumb .z > * {
+  stroke-width: 7;
+}
+
+/* Màn hẹp: nhãn trên sơ đồ quá nhỏ để đọc; tên bộ phận đã có ở các tab bên dưới. */
+@media (max-width: 560px) {
+  .z-label {
+    display: none;
+  }
+}
+
+.car-wrap {
+  padding: 4%;
+}
+
+.part-tab span {
+  color: inherit;
+  opacity: 0.8;
+}
+
+.part-sub {
+  margin: -0.75rem 0 0.75rem;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--purple);
+}
+
+.part-desc {
+  margin: 0 0 1.25rem;
+  color: var(--muted);
+}
+
+.upgrades {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.upgrade {
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--green);
+  border-radius: var(--radius);
+  background: var(--bg);
+}
+
+.upgrade-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.upgrade h3 {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.35;
+  color: var(--text);
+}
+
+.installed {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 0.3rem;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--green);
+}
+
+.installed svg {
+  width: 14px;
+  height: 14px;
+}
+
+.upgrade p {
+  margin: 0.4rem 0 0;
+  font-size: 0.9375rem;
+  color: var(--text-soft);
+}
+
+.upgrade-races {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  margin-top: 0.65rem;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.upgrade-races ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.race-tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 32px;
+  padding: 0 0.6rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  color: var(--text);
+  text-decoration: none;
+  transition:
+    border-color 0.2s var(--ease),
+    color 0.2s var(--ease);
+}
+
+.race-tag:hover,
+.race-tag:focus-visible {
+  border-color: var(--purple);
+  color: var(--purple);
+}
+
 /* ---------- Responsive ---------- */
 @media (min-width: 768px) {
   .container {

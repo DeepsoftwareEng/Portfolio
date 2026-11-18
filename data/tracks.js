@@ -8,6 +8,8 @@
  *            Số phần tử PHẢI bằng số turn trong content của chặng (có test kiểm tra).
  * - status : 'grid' | 'live' | 'finished' | 'garage' — nhãn trạng thái trên lịch mùa giải.
  * - feature: true → chặng chính (Feature Race).
+ * - kind   : 'garage' → không vẽ đường đua mà hiện màn Pit Garage (garage.js);
+ *            mỗi phần tử trong `turns` ứng với một bộ phận của xe. points vẫn giữ cho đủ định dạng.
  */
 (function () {
   'use strict';
@@ -15,19 +17,8 @@
 
   PW.tracks = [
     {
+      // VSD GP — vai trò trong đội
       id: 'r01',
-      status: 'grid',
-      radius: 90,
-      points: [
-        [160, 460],
-        [300, 150],
-        [840, 140],
-        [860, 460],
-      ],
-      turns: [0, 1, 2],
-    },
-    {
-      id: 'r02',
       status: 'live',
       radius: 80,
       points: [
@@ -40,8 +31,9 @@
       turns: [1, 2, 3],
     },
     {
-      id: 'r03',
-      status: 'finished',
+      // Thừa hành viên GP
+      id: 'r02',
+      status: 'live',
       radius: 70,
       points: [
         [120, 330],
@@ -54,7 +46,36 @@
       turns: [1, 2, 3],
     },
     {
+      // Số hoá GP
+      id: 'r03',
+      status: 'finished',
+      radius: 70,
+      points: [
+        [130, 440],
+        [150, 170],
+        [420, 120],
+        [560, 270],
+        [850, 150],
+        [880, 450],
+      ],
+      turns: [1, 2, 3, 4],
+    },
+    {
+      // Tiếp dân GP
       id: 'r04',
+      status: 'finished',
+      radius: 90,
+      points: [
+        [160, 460],
+        [300, 150],
+        [840, 140],
+        [860, 460],
+      ],
+      turns: [0, 1, 2],
+    },
+    {
+      // Steel GP — Feature Race
+      id: 'r05',
       status: 'live',
       feature: true,
       radius: 55,
@@ -75,7 +96,8 @@
       turns: [1, 2, 3, 4, 6, 7, 8, 10],
     },
     {
-      id: 'r05',
+      // HaUI GP
+      id: 'r06',
       status: 'finished',
       radius: 130,
       points: [
@@ -87,8 +109,10 @@
       turns: [1, 2],
     },
     {
-      id: 'r06',
+      // Pit Garage — 4 bộ phận: Aerodynamics, Chassis, Power Unit, Durability
+      id: 'r07',
       status: 'garage',
+      kind: 'garage',
       radius: 70,
       points: [
         [130, 420],

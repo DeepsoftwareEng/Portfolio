@@ -58,7 +58,7 @@
 
   /** Các turn đã xem, lưu theo chặng trong localStorage. */
   const visited = {
-    KEY: 'pw.visited',
+    KEY: 'pw.visited.v2', // v2: mã chặng đã đổi nghĩa khi sắp xếp lại mùa giải
     all() {
       const data = storage.get('localStorage', this.KEY, {});
       return data && typeof data === 'object' ? data : {};

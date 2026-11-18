@@ -2,9 +2,9 @@ const { test, expect } = require('@playwright/test');
 const AxeBuilder = require('@axe-core/playwright').default;
 
 test.describe('lịch mùa giải', () => {
-  test('hiển thị 6 chặng, Steel GP là Feature Race', async ({ page }) => {
+  test('hiển thị 7 chặng, Steel GP là Feature Race', async ({ page }) => {
     await page.goto('/#/vi');
-    await expect(page.locator('.race-row')).toHaveCount(6);
+    await expect(page.locator('.race-row')).toHaveCount(7);
     await expect(page.locator('.race-row.is-feature')).toContainText('Steel GP');
     await expect(page).toHaveTitle(/Nguyễn Phúc Hưng/);
     await expect(page.locator('html')).toHaveAttribute('lang', 'vi');
@@ -18,7 +18,7 @@ test.describe('lịch mùa giải', () => {
   test('không có hash → tự thêm ngôn ngữ', async ({ page }) => {
     await page.goto('/');
     await expect(page).toHaveURL(/#\/(vi|en)$/);
-    await expect(page.locator('.race-row')).toHaveCount(6);
+    await expect(page.locator('.race-row')).toHaveCount(7);
   });
 });
 
@@ -26,30 +26,30 @@ test.describe('chặng & turn', () => {
   test('vào Feature Race và đi hết 8 turn bằng phím →', async ({ page }) => {
     await page.goto('/#/vi');
     await page.locator('.race-row.is-feature a').click();
-    await expect(page).toHaveURL(/#\/vi\/r04\/t1$/);
+    await expect(page).toHaveURL(/#\/vi\/r05\/t1$/);
     await expect(page.locator('.track .turn-marker')).toHaveCount(8);
     for (let i = 2; i <= 8; i++) {
       await page.keyboard.press('ArrowRight');
-      await expect(page).toHaveURL(new RegExp(`#/vi/r04/t${i}$`));
+      await expect(page).toHaveURL(new RegExp(`#/vi/r05/t${i}$`));
       await expect(page.locator('.turn-chip[aria-current="step"] b')).toHaveText(`T${i}`);
     }
     // Turn cuối → sang chặng sau
     await page.keyboard.press('ArrowRight');
-    await expect(page).toHaveURL(/#\/vi\/r05\/t1$/);
+    await expect(page).toHaveURL(/#\/vi\/r06\/t1$/);
   });
 
   test('bấm chip turn và marker trên đường đua', async ({ page }) => {
-    await page.goto('/#/vi/r04/t1');
+    await page.goto('/#/vi/r05/t1');
     await page.locator('.turn-chip').nth(2).click();
-    await expect(page).toHaveURL(/#\/vi\/r04\/t3$/);
+    await expect(page).toHaveURL(/#\/vi\/r05\/t3$/);
     await expect(page.locator('#turn-title')).toHaveText(/Phân quyền/i);
     await page.locator('.turn-marker[data-index="4"]').click();
-    await expect(page).toHaveURL(/#\/vi\/r04\/t5$/);
+    await expect(page).toHaveURL(/#\/vi\/r05\/t5$/);
     await expect(page.locator('.turn-chip').nth(2)).toHaveClass(/is-visited/);
   });
 
   test('deep link tiếng Anh mở đúng turn', async ({ page }) => {
-    await page.goto('/#/en/r04/t5');
+    await page.goto('/#/en/r05/t5');
     await expect(page.locator('html')).toHaveAttribute('lang', 'en');
     await expect(page.locator('#turn-title')).toHaveText(/formula parser/i);
     await expect(page).toHaveTitle(/Steel GP/);
@@ -65,15 +65,15 @@ test.describe('chặng & turn', () => {
     await expect(page).toHaveURL(/#\/vi\/r02\/t1$/);
     await page.goBack();
     await expect(page).toHaveURL(/#\/vi$/);
-    await expect(page.locator('.race-row')).toHaveCount(6);
+    await expect(page.locator('.race-row')).toHaveCount(7);
     await page.goForward();
     await expect(page).toHaveURL(/#\/vi\/r02\/t1$/);
   });
 
   test('đổi ngôn ngữ giữ nguyên chặng và turn', async ({ page }) => {
-    await page.goto('/#/vi/r03/t2');
+    await page.goto('/#/vi/r02/t2');
     await page.locator('#lang-switch a[data-lang="en"]').click();
-    await expect(page).toHaveURL(/#\/en\/r03\/t2$/);
+    await expect(page).toHaveURL(/#\/en\/r02\/t2$/);
     await expect(page.locator('html')).toHaveAttribute('lang', 'en');
     await expect(page.locator('#turn-title')).toHaveText(/Document export/i);
   });
@@ -87,11 +87,59 @@ test.describe('chặng & turn', () => {
     await expect(page).toHaveURL(/#\/vi$/);
   });
 
-  test('khối dữ liệu trống được ẩn (R04 không có Kết quả / link demo)', async ({ page }) => {
-    await page.goto('/#/vi/r04/t1');
+  test('race brief hiện Kết quả, khối trống (link demo) được ẩn', async ({ page }) => {
+    await page.goto('/#/vi/r05/t1');
     await expect(page.locator('.brief')).toBeVisible();
     await expect(page.locator('.brief .turn-links')).toHaveCount(0);
-    await expect(page.locator('.brief')).not.toContainText('Kết quả');
+    await expect(page.locator('.brief')).toContainText('Kết quả');
+    await expect(page.locator('.brief')).toContainText('19 văn bản');
+  });
+
+  test('chặng không có race brief thì không hiện khối brief', async ({ page }) => {
+    await page.goto('/#/vi/r03/t1');
+    await expect(page.locator('#turn-title')).toHaveText(/Vòng đời tài liệu/i);
+    await expect(page.locator('.brief')).toHaveCount(0);
+  });
+});
+
+test.describe('Pit Garage', () => {
+  test('lịch hiện "4 bộ phận" và sơ đồ xe thay cho đường đua', async ({ page }) => {
+    await page.goto('/#/vi');
+    const row = page.locator('.race-row').last();
+    await expect(row).toContainText('Pit Garage');
+    await expect(row.locator('.race-turns')).toContainText('bộ phận');
+    await expect(row.locator('.car-thumb')).toHaveCount(1);
+  });
+
+  test('chuyển bộ phận bằng tab, phím → và sơ đồ xe; không có đường đua / turn', async ({ page }) => {
+    await page.goto('/#/vi/r07');
+    await expect(page).toHaveURL(/#\/vi\/r07\/t1$/);
+    await expect(page.locator('.track')).toHaveCount(0);
+    await expect(page.locator('.part-tab')).toHaveCount(4);
+    await expect(page.locator('#turn-title')).toHaveText('Aerodynamics');
+    await expect(page.locator('.car-big')).toHaveAttribute('data-active', 'aero');
+    await expect(page.locator('.upgrade').first()).toContainText('Đã lắp');
+
+    await page.locator('.part-tab').nth(2).click();
+    await expect(page).toHaveURL(/#\/vi\/r07\/t3$/);
+    await expect(page.locator('#turn-title')).toHaveText('Power Unit');
+    await expect(page.locator('.car-big')).toHaveAttribute('data-active', 'power');
+
+    await page.keyboard.press('ArrowRight');
+    await expect(page).toHaveURL(/#\/vi\/r07\/t4$/);
+    await expect(page.locator('#turn-title')).toHaveText('Durability');
+    await expect(page).toHaveTitle(/Bộ phận 4/);
+
+    await page.locator('.car-big .z-chassis').click();
+    await expect(page).toHaveURL(/#\/vi\/r07\/t2$/);
+  });
+
+  test('bấm nhãn chặng của một nâng cấp → sang chặng đó', async ({ page }) => {
+    await page.goto('/#/vi/r07/t3');
+    const redis = page.locator('.upgrade', { hasText: 'Redis' });
+    await redis.locator('.race-tag', { hasText: 'R05' }).click();
+    await expect(page).toHaveURL(/#\/vi\/r05\/t1$/);
+    await expect(page.locator('#view-title')).toHaveText('Steel GP');
   });
 });
 
@@ -134,7 +182,7 @@ test('không chạy intro khi prefers-reduced-motion', async ({ page }) => {
 });
 
 test.describe('accessibility (axe)', () => {
-  for (const url of ['/#/vi', '/#/en/r04/t1', '/#/vi/r01/t3']) {
+  for (const url of ['/#/vi', '/#/en/r05/t1', '/#/vi/r01/t3', '/#/vi/r03/t1', '/#/vi/r07/t1']) {
     test(`không có lỗi serious/critical: ${url}`, async ({ page }) => {
       await page.goto(url);
       await page.locator('#view-title').waitFor();
@@ -146,7 +194,15 @@ test.describe('accessibility (axe)', () => {
 });
 
 test('không cuộn ngang', async ({ page }) => {
-  for (const url of ['/#/vi', '/#/vi/r01/t1', '/#/vi/r04/t1', '/#/en/r04/t8', '/#/vi/r06/t4']) {
+  for (const url of [
+    '/#/vi',
+    '/#/vi/r01/t1',
+    '/#/vi/r03/t4',
+    '/#/vi/r04/t3',
+    '/#/vi/r05/t1',
+    '/#/en/r05/t8',
+    '/#/vi/r07/t4',
+  ]) {
     await page.goto(url);
     await page.locator('#view-title').waitFor();
     // So với độ rộng thiết bị: trên mobile, nội dung tràn làm innerWidth giãn theo nên không dùng innerWidth được.

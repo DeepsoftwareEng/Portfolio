@@ -18,9 +18,9 @@ function load() {
 
 const PW = load();
 
-test('có 6 chặng, id không trùng, đúng một Feature Race', () => {
-  assert.equal(PW.tracks.length, 6);
-  assert.equal(new Set(PW.tracks.map((t) => t.id)).size, 6);
+test('có 7 chặng, id không trùng, đúng một Feature Race', () => {
+  assert.equal(PW.tracks.length, 7);
+  assert.equal(new Set(PW.tracks.map((t) => t.id)).size, 7);
   assert.equal(PW.tracks.filter((t) => t.feature).length, 1);
 });
 
@@ -64,4 +64,42 @@ test('không còn placeholder [điền] và không có số điện thoại', ()
   assert.ok(!/\[điền/i.test(all), 'còn placeholder [điền]');
   assert.ok(!/823\s*977\s*189/.test(all), 'lộ số điện thoại');
   assert.ok(!/\(\+84\)/.test(all), 'lộ số điện thoại');
+});
+
+test('Pit Garage: mỗi bộ phận hợp lệ, nhãn chặng trỏ tới chặng có thật', () => {
+  const garages = PW.tracks.filter((t) => t.kind === 'garage');
+  assert.equal(garages.length, 1, 'cần đúng một chặng garage');
+  const ids = new Set(PW.tracks.map((t) => t.id));
+  const PARTS = ['aero', 'chassis', 'power', 'durability'];
+  LANGS.forEach((lang) => {
+    const parts = PW.content[lang].races[garages[0].id].turns;
+    // Array.from: mảng tạo trong sandbox vm thuộc realm khác, deepStrictEqual sẽ coi là khác kiểu.
+    const got = Array.from(parts, (p) => p.part).sort();
+    assert.deepEqual(got, PARTS.slice().sort(), `${lang}: thiếu hoặc trùng bộ phận`);
+    parts.forEach((p) => {
+      assert.ok(Array.isArray(p.upgrades) && p.upgrades.length, `${lang}: ${p.title} chưa có nâng cấp`);
+      p.upgrades.forEach((u) => {
+        assert.ok(u.name, `${lang}: ${p.title} có nâng cấp thiếu tên`);
+        (u.races || []).forEach((id) => {
+          assert.ok(ids.has(id), `${lang}: ${u.name} trỏ tới chặng không tồn tại ${id}`);
+          assert.notEqual(id, garages[0].id, `${lang}: ${u.name} tự trỏ về garage`);
+        });
+      });
+    });
+  });
+  // Hai ngôn ngữ phải gắn cùng chặng cho cùng nâng cấp.
+  const tags = (lang) =>
+    PW.content[lang].races[garages[0].id].turns.map((p) => p.upgrades.map((u) => (u.races || []).join(',')));
+  assert.deepEqual(tags('vi'), tags('en'), 'nhãn chặng lệch giữa vi và en');
+});
+
+// Nội dung đã thống nhất không đưa lên: phân hệ bị loại trừ, phần không tự làm, placeholder chưa điền.
+test('không có nội dung bị loại trừ', () => {
+  const all = DATA_FILES.map((f) => fs.readFileSync(path.join(ROOT, f), 'utf8')).join('\n');
+  [
+    [/sổ tiếp dân/i, 'phân hệ Sổ tiếp dân'],
+    [/\[(ĐIỀN|điền)/i, 'placeholder [ĐIỀN]'],
+    [/form builder/i, 'form builder (không tự làm)'],
+    [/biểu mẫu động|form động|dynamic form|schema-driven/i, 'form động (không tự làm)'],
+  ].forEach(([re, what]) => assert.ok(!re.test(all), 'còn ' + what));
 });

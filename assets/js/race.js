@@ -17,16 +17,19 @@
     const tracks = PW.tracks;
     const def = tracks[raceIndex];
     const last = def.turns.length - 1;
+    const garage = def.kind === 'garage';
     let prev;
     let next;
-    if (turnIndex > 0) prev = { href: turnHref(lang, def.id, turnIndex - 1), label: t('prevTurn') };
-    else if (raceIndex > 0) {
+    if (turnIndex > 0) {
+      prev = { href: turnHref(lang, def.id, turnIndex - 1), label: t(garage ? 'prevPart' : 'prevTurn') };
+    } else if (raceIndex > 0) {
       const p = tracks[raceIndex - 1];
       prev = { href: turnHref(lang, p.id, p.turns.length - 1), label: t('prevRace') };
     } else prev = { href: '#/' + lang, label: t('back') };
 
-    if (turnIndex < last) next = { href: turnHref(lang, def.id, turnIndex + 1), label: t('nextTurn') };
-    else if (raceIndex < tracks.length - 1) {
+    if (turnIndex < last) {
+      next = { href: turnHref(lang, def.id, turnIndex + 1), label: t(garage ? 'nextPart' : 'nextTurn') };
+    } else if (raceIndex < tracks.length - 1) {
       next = { href: turnHref(lang, tracks[raceIndex + 1].id, 0), label: t('nextRace') };
     } else next = { href: '#/' + lang, label: t('checkered') };
     return { prev, next };
@@ -225,35 +228,16 @@
    * Render màn chặng vào container.
    * @returns {{update(turnIndex:number):void, destroy():void}}
    */
-  function mount(container, lang, raceIndex, turnIndex) {
+  /** Thanh điều hướng (về lịch, Round n / N, chặng trước / sau) + header của chặng. Dùng chung cho màn Garage. */
+  function head(lang, raceIndex) {
     const t = PW.i18n.t.bind(PW.i18n);
     const def = PW.tracks[raceIndex];
     const race = PW.i18n.race(def.id);
     const totalRaces = PW.tracks.length;
-    const totalTurns = def.turns.length;
     const prevRace = PW.tracks[raceIndex - 1];
     const nextRace = PW.tracks[raceIndex + 1];
     const eyebrow = ['R' + pad2(raceIndex + 1), race.short, race.label].filter(has).map(esc).join(' · ');
-
-    const turnItems = race.turns
-      .map(
-        (turn, i) =>
-          '<li><a class="turn-chip" data-index="' +
-          i +
-          '" href="' +
-          turnHref(lang, def.id, i) +
-          '"><b>T' +
-          (i + 1) +
-          '</b><span>' +
-          esc(turn.title) +
-          '</span>' +
-          icon('check', 'chk') +
-          '<span class="sr-only chip-state"></span></a></li>'
-      )
-      .join('');
-
-    container.innerHTML =
-      '<div class="view view-race container">' +
+    return (
       '<nav class="race-nav" aria-label="' +
       esc(t('season')) +
       '">' +
@@ -303,7 +287,38 @@
       (has(race.period) ? '<p class="race-period">' + esc(race.period) + '</p>' : '') +
       (has(race.summary) ? '<p class="race-summary">' + rich(race.summary) + '</p>' : '') +
       chips(race.chips) +
-      '</header>' +
+      '</header>'
+    );
+  }
+
+  function mount(container, lang, raceIndex, turnIndex) {
+    const def = PW.tracks[raceIndex];
+    if (def.kind === 'garage') return PW.garage.mount(container, lang, raceIndex, turnIndex);
+
+    const t = PW.i18n.t.bind(PW.i18n);
+    const race = PW.i18n.race(def.id);
+    const totalTurns = def.turns.length;
+
+    const turnItems = race.turns
+      .map(
+        (turn, i) =>
+          '<li><a class="turn-chip" data-index="' +
+          i +
+          '" href="' +
+          turnHref(lang, def.id, i) +
+          '"><b>T' +
+          (i + 1) +
+          '</b><span>' +
+          esc(turn.title) +
+          '</span>' +
+          icon('check', 'chk') +
+          '<span class="sr-only chip-state"></span></a></li>'
+      )
+      .join('');
+
+    container.innerHTML =
+      '<div class="view view-race container">' +
+      head(lang, raceIndex) +
       '<div class="race-grid">' +
       '<section class="track-card" aria-label="' +
       esc(t('trackLabel', { name: race.name })) +
@@ -400,5 +415,5 @@
     };
   }
 
-  PW.race = { mount, turnHref, neighbors };
+  PW.race = { mount, turnHref, neighbors, head };
 })();

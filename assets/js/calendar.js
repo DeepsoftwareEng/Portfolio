@@ -1,4 +1,4 @@
-/* Màn lịch mùa giải: thẻ tay đua, telemetry và danh sách 6 chặng. */
+/* Màn lịch mùa giải: thẻ tay đua, telemetry và danh sách các chặng. */
 (function () {
   'use strict';
   const PW = (window.PW = window.PW || {});
@@ -35,7 +35,7 @@
       pad2(index + 1) +
       '</b></span>' +
       '<span class="race-thumb">' +
-      PW.track.thumb(def) +
+      (def.kind === 'garage' ? PW.garage.thumb() : PW.track.thumb(def)) +
       '</span>' +
       '<span class="race-main"><span class="race-name">' +
       esc(race.name) +
@@ -47,7 +47,7 @@
       '<span class="race-turns"><b>' +
       total +
       '</b> ' +
-      esc(i18n.t('turnsUnit')) +
+      esc(i18n.t(def.kind === 'garage' ? 'partsUnit' : 'turnsUnit')) +
       (seen ? '<small>' + esc(i18n.t('viewedOf', { n: Math.min(seen, total), total })) + '</small>' : '') +
       '</span>' +
       '<span class="race-period">' +
